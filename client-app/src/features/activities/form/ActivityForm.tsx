@@ -1,16 +1,12 @@
+import { observer } from "mobx-react-lite";
 import React, { ChangeEvent, useState } from "react";
 import { Button, Form, Segment } from "semantic-ui-react";
-import { Activity } from "../../../app/models/Activity";
+import { useStore } from "../../../app/stores/store";
 
-interface Props {
-    activity: Activity | undefined;
-    closeForm: () => void;
-    createOrEdit: (Activity: Activity) => void;
-    submitting: boolean;
-}
+export default observer(function ActivityForm() {
 
-export default function ActivityForm({ closeForm, activity: selectedActivity, createOrEdit, submitting }: Props) {
-
+    const { activityStore } = useStore();
+    const { selectedActivity, closeForm, createActivity, updateActivity, loading } = activityStore;
     const initialState = selectedActivity ?? {
         id: '',
         title: '',
@@ -24,7 +20,7 @@ export default function ActivityForm({ closeForm, activity: selectedActivity, cr
     const [activity, setActivity] = useState(initialState);
 
     const handleSubmit = () => {
-        createOrEdit(activity);
+        activity.id ? updateActivity(activity) : createActivity(activity);
     }
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -41,9 +37,9 @@ export default function ActivityForm({ closeForm, activity: selectedActivity, cr
                 <Form.Input type="date" placeholder='Date' value={activity.date} name='date' onChange={handleInputChange} />
                 <Form.Input placeholder='City' value={activity.city} name='city' onChange={handleInputChange} />
                 <Form.Input placeholder='Venue' value={activity.venue} name='venue' onChange={handleInputChange} />
-                <Button loading={submitting} floated="right" positive type='submit' content='Submit' value={activity.title} name='title' />
+                <Button loading={loading} floated="right" positive type='submit' content='Submit' value={activity.title} name='title' />
                 <Button onClick={closeForm} floated="right" type='button' content='Cancel' value={activity.title} name='title' />
             </Form>
         </Segment>
     );
-}
+});
